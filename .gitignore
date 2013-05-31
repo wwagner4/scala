@@ -1,6 +1,4 @@
-/akka-server-tryout/target
-/akka-server-tryout/project/target
-/akka-server-tryout/project/project/target
-/akka-client-tryout/target
-/akka-client-tryout/project/target
+target
 *~
+.classpath
+.project
