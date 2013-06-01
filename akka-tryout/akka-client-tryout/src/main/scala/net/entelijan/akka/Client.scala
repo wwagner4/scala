@@ -6,8 +6,8 @@ import scala.concurrent.duration._
 import akka.pattern.ask
 import scala.concurrent._
 import scala.util._
-
 import ExecutionContext.Implicits.global
+import akka.pattern.AskTimeoutException
 
 object Client extends App {
   import scala.language.postfixOps
@@ -29,7 +29,11 @@ object Client extends App {
       a ! msg
       println(s"--- C2 ${msg}")
      }
-    case Failure(x) => println(s"--- C3 Completed with failure ${x}")
+     case Failure(x) => println(s"--- C3 Completed with failure ${x}")
+  }
+  f onFailure {
+    case at: AskTimeoutException => println(s"--- C4a Received AkkaTimeoutException '${at.getMessage()}' onFailure")
+    case any => println(s"--- C4b Received Any '$any' onFailure")
   }
     
   system.shutdown
