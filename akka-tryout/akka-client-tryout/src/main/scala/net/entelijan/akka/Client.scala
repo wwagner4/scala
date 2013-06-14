@@ -9,6 +9,7 @@ import scala.util._
 import akka.util._
 import ExecutionContext.Implicits.global
 import akka.pattern.AskTimeoutException
+import java.net.InetAddress
 
 object Client extends App {
   try {
@@ -16,8 +17,10 @@ object Client extends App {
     implicit val timeout = Timeout(3 seconds)
     
     val system = ActorSystem("sys")
-    println("--- A")
-    val url = "akka://sys@127.0.0.1:8988/user/server"
+    val host = "NB-WWAGNER1"
+    val hostAdr = InetAddress.getByName(host).getHostAddress()
+    println(s"--- A $host -> $hostAdr")
+    val url = s"akka://sys@$hostAdr:8988/user/server"
 
     val a = system.actorFor(url)
 
