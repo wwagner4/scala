@@ -15,13 +15,21 @@ class ServerActor extends Actor {
 }
 
 object Server extends App {
-	  val system = ActorSystem("sys")
-	  println("--- A")
-	  
-	  val props: Props = Props[ServerActor]
-	  println(s"--- D $props")
-	  
-	  val ref = system.actorOf(props, "server")
-	  println(s"--- E $ref")
-	  
+
+  try {
+    val system = ActorSystem("sys")
+    println("--- A")
+
+    val props: Props = Props[ServerActor]
+    println(s"--- D $props")
+
+    val ref = system.actorOf(props, "server")
+    println(s"--- E $ref")
+  } catch {
+    case e: Exception => {
+      println(s"--- F Could not start server. $e")
+      System.exit(-1);
+    }
+  }
+
 }

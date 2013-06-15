@@ -6,33 +6,49 @@ import scala.concurrent.duration._
 import akka.pattern.ask
 import scala.concurrent._
 import scala.util._
-
+import akka.util._
 import ExecutionContext.Implicits.global
+import akka.pattern.AskTimeoutException
+import java.net.InetAddress
 
 object Client extends App {
-  import scala.language.postfixOps
-
-  val system = ActorSystem("sys")
-  println("--- A")
-  
-  val url = "akka://sys@127.0.0.1:8988/user/server"
-  
-  val a = system.actorFor(url)
-  
-  val f  = a.ask(Status)(2 second) 
-  println(s"--- C1 ${f}")
-
-  f onComplete {
-    case Success(x) => {
-      println(s"Completed with Success received '${x}'")
-      val msg = Info("Hello from client")
-      a ! msg
-      println(s"--- C2 ${msg}")
-     }
-    case Failure(x) => println(s"--- C3 Completed with failure ${x}")
-  }
+  try {
+    import scala.language.postfixOps
+    implicit val timeout = Timeout(3 seconds)
     
-  system.shutdown
-  println("--- D shutdown")
+    val system = ActorSystem("sys")
+    val host = "NB-WWAGNER1"
+    val hostAdr = InetAddress.getByName(host).getHostAddress()
+    println(s"--- A $host -> $hostAdr")
+    val url = s"akka://sys@$hostAdr:8988/user/server"
+
+    val a = system.actorFor(url)
+
+    val f = a ? Status
+    println(s"--- C1 ${f}")
+
+    f onComplete {
+      case Success(x) => {
+        println(s"Completed with Success received '${x}'")
+        val msg = Info("Hello from client")
+        a ! msg
+        println(s"--- C2 sent message to server: '${msg}'")
+        system.shutdown
+        println("--- Ds shutdown")
+      }
+      case Failure(x) => {
+        println(s"--- C3 Completed with failure ${x}")
+        system.shutdown
+        println("--- Df shutdown")
+      }
+    }
+
+  } catch {
+    case e: Exception => {
+      println(s"--- E Failure in initializing the client $e")
+      println("--- F exit -1")
+      System.exit(-1)
+    }
+  }
 
 }
