@@ -17,7 +17,7 @@ object Client extends App {
     implicit val timeout = Timeout(3 seconds)
     
     val system = ActorSystem("sys")
-    val host = "NB-WWAGNER1"
+    val host = "noah-pc"
     val hostAdr = InetAddress.getByName(host).getHostAddress()
     println(s"--- A $host -> $hostAdr")
     val url = s"akka://sys@$hostAdr:8988/user/server"
